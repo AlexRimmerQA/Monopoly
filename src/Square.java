@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * Created by Alex Rimmer on 11/04/2017.
  */
@@ -21,7 +23,7 @@ public class Square
 	}
 
 	// Each type of square will have some sort of function when it is landed on.
-	public void LandOn(Player player)
+	public void LandOn(Player player, ArrayList<Square> board)
 	{
 
 	}
@@ -32,4 +34,10 @@ public class Square
 	{
 		return this.name;
 	}
+
+	//public void SetNext(Square nextSquare) { this.nextSquare = nextSquare; }
+	//public Square GetNext() { return this.nextSquare; }
+
+	//public void SetPrev(Square name) { this.prevSquare = name; }
+	//public Square GetPrev() { return this.prevSquare; }
 }

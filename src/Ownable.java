@@ -3,7 +3,7 @@
  */
 public class Ownable extends Square
 {
-	protected String owner;
+	protected Player owner;
 	protected int price;
 
 	protected Ownable()
@@ -18,9 +18,9 @@ public class Ownable extends Square
 		this.price = price;
 	}
 
-	public void SetOwner(String owner) { this.owner = owner; }
+	public void SetOwner(Player owner) { this.owner = owner; }
 
-	public String GetOwner()
+	public Player GetOwner()
 	{
 		return this.owner;
 	}
