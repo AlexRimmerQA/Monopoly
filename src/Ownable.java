@@ -5,6 +5,7 @@ public class Ownable extends Square
 {
 	protected Player owner;
 	protected int price;
+	protected boolean mortgaged;
 
 	protected Ownable()
 	{
@@ -16,16 +17,36 @@ public class Ownable extends Square
 		super(name);
 		this.owner = null;
 		this.price = price;
+		this.mortgaged = false;
 	}
 
-	public void SetOwner(Player owner) { this.owner = owner; }
+	public void SetOwner(Player owner)
+	{
+		this.owner = owner;
+	}
 
 	public Player GetOwner()
 	{
 		return this.owner;
 	}
 
-	public void SetPrice(int price) { this.price = price; }
+	public void SetPrice(int price)
+	{
+		this.price = price;
+	}
 
-	public int GetPrice() { return this.price; }
+	public int GetPrice()
+	{
+		return this.price;
+	}
+
+	public void SetMortgaged(boolean mortgaged)
+	{
+		this.mortgaged = mortgaged;
+	}
+
+	public boolean GetMortgaged()
+	{
+		return this.mortgaged;
+	}
 }

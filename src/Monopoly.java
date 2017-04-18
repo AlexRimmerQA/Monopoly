@@ -105,7 +105,7 @@ public class Monopoly
 					rolledDice = true;
 					int die1 = RollDie();
 					int die2 = RollDie();
-					System.out.println("Rolled:" + die1 + " and " + die2);
+					System.out.println("Rolled: " + die1 + " and " + die2);
 					if (die1 == die2)
 					{
 						doubleCount++;
@@ -133,7 +133,10 @@ public class Monopoly
 					{
 						doubleCount = 0;
 					}
-					players[currentPlayer].Move(die1+die2, board);
+					if(players[currentPlayer].GetJailed() != true)
+					{
+						players[currentPlayer].Move(die1 + die2, board);
+					}
 					break;
 				case "2":
 

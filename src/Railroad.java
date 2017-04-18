@@ -74,7 +74,20 @@ public class Railroad extends Ownable
 				else
 				{
 					System.out.println(player.GetName() + " does not have enough money to pay");
-					// Manage money to get enough to pay rent
+					boolean enoughMoney = player.MoneyManagement(rentAmount, board);
+					if(enoughMoney == true)
+					{
+						System.out.println(player.GetName() + " now has enough money to pay");
+						player.RemoveMoney(rentAmount);
+						owner.AddMoney(rentAmount);
+					}
+					else // bankrupt
+					{
+						System.out.println(player.GetName() + " could not get enough money to pay their debts.");
+						System.out.println(player.GetName() + " is bankrupt");
+						System.out.println(owner.GetName() + " will receive all of " + player.GetName() + "'s things");
+						player.Bankrupt(owner);
+					}
 				}
 			}
 		}

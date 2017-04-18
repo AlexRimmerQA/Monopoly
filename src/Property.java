@@ -20,6 +20,37 @@ public class Property extends Ownable
 		this.rentStage = 0;
 	}
 
+	public void BuyHouse()
+	{
+		if(rentStage != 4)
+		{
+			rentStage++;
+		}
+	}
+
+	public void SellHouse()
+	{
+		if(rentStage != 0)
+		{
+			rentStage--;
+		}
+	}
+
+	public int GetUpgradeCost()
+	{
+		return this.upgradeCost;
+	}
+
+	public int GetRentStage()
+	{
+		return this.rentStage;
+	}
+
+	public String GetPropertyGroup()
+	{
+		return this.propertyGroup;
+	}
+
 	public void LandOn(Player player, ArrayList<Square> board)
 	{
 		System.out.println(player.GetName() + " has landed on " + this.name);
@@ -56,7 +87,7 @@ public class Property extends Ownable
 			}
 			else
 			{
-				System.out.println("Somebody else owns this property. " + player.GetName() + " pays £" + rentValues.get(rentStage) + " to " + this.owner.GetName());
+				System.out.println("Somebody else owns this property. " + player.GetName() + " must pay £" + rentValues.get(rentStage) + " to " + this.owner.GetName());
 				if(player.GetMoney() >= rentValues.get(rentStage))
 				{
 					player.RemoveMoney(rentValues.get(rentStage));
@@ -65,7 +96,20 @@ public class Property extends Ownable
 				else
 				{
 					System.out.println(player.GetName() + " does not have enough money to pay");
-					// Manage money to get enough to pay rent
+					boolean enoughMoney = player.MoneyManagement(rentValues.get(rentStage), board);
+					if(enoughMoney == true)
+					{
+						System.out.println(player.GetName() + " now has enough money to pay");
+						player.RemoveMoney(rentValues.get(rentStage));
+						owner.AddMoney(rentValues.get(rentStage));
+					}
+					else // bankrupt
+					{
+						System.out.println(player.GetName() + " could not get enough money to pay their debts.");
+						System.out.println(player.GetName() + " is bankrupt");
+						System.out.println(owner.GetName() + " will receive all of " + player.GetName() + "'s things");
+						player.Bankrupt(owner);
+					}
 				}
 			}
 		}
