@@ -86,7 +86,7 @@ public class Railroad extends Ownable
 						System.out.println(player.GetName() + " could not get enough money to pay their debts.");
 						System.out.println(player.GetName() + " is bankrupt");
 						System.out.println(owner.GetName() + " will receive all of " + player.GetName() + "'s things");
-						player.Bankrupt(owner);
+						player.Bankrupt(owner, board);
 					}
 				}
 			}

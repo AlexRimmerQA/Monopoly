@@ -11,8 +11,11 @@ public class Player
 	private String name;
 	private int money;
 	private boolean jailed;
+	private int jailCards;
+	private int jailCounter;
 	private int boardPosition;
 	private int lastRollTotal;
+	private boolean bankrupt;
 
 	public Player()
 	{
@@ -21,7 +24,40 @@ public class Player
 
 		money = 500;
 		jailed = false;
+		jailCards = 0;
+		jailCounter = 0;
+		bankrupt = false;
 		boardPosition = 0;
+	}
+
+	public int GetJailCards()
+	{
+		return this.jailCards;
+	}
+
+	public void GiveJailCard()
+	{
+		jailCards++;
+	}
+
+	public void RemoveJailCard()
+	{
+		jailCards--;
+	}
+
+	public void SetJailCounter(int jailCounter)
+	{
+		this.jailCounter = jailCounter;
+	}
+
+	public int GetJailCounter()
+	{
+		return this.jailCounter;
+	}
+
+	public boolean GetBankrupt()
+	{
+		return this.bankrupt;
 	}
 
 	public int GetMoney()
@@ -51,7 +87,7 @@ public class Player
 
 	public int GetLastRollTotal()
 	{
-		return lastRollTotal;
+		return this.lastRollTotal;
 	}
 
 	public void Move(int amount, ArrayList<Square> board)
@@ -258,13 +294,48 @@ public class Player
 		return mortgageable;
 	}
 
-	public void Bankrupt(Player receiver)
+	public void Bankrupt(Player receiver, ArrayList<Square> board)
 	{
 		// receiver will get all of players stuff
+
+		for(Square square : board) // for each square on the board
+		{
+			if(square instanceof Ownable) // if its an ownable square
+			{
+				Ownable ownable = (Ownable)square;
+				if(ownable.owner == this) // if this player is the owner of the square
+				{
+					ownable.SetOwner(receiver); // change the owner of the square to the person who bankrupted this player
+				}
+			}
+		}
+
+		//They also receive all the players remaining money.
+		receiver.AddMoney(this.money);
+		this.money = 0;
+
+		//Set this player as bankrupt
+		this.bankrupt = true;
 	}
 
-	public void Bankrupt()
+	public void Bankrupt(ArrayList<Square> board)
 	{
+		// bank will get all the players stuff - set to null
+
+		for(Square square : board) // for each square on the board
+		{
+			if(square instanceof Ownable) // if its an ownable square
+			{
+				Ownable ownable = (Ownable)square;
+				if(ownable.owner == this) // if this player is the owner of the square
+				{
+					ownable.SetOwner(null); // change the owner of the square to null for the bank
+				}
+			}
+		}
+
+		//Set this player as bankrupt
+		this.bankrupt = true;
 
 	}
 
@@ -289,6 +360,11 @@ public class Player
 
 	public String ToString()
 	{
-		return "Player " + this.id + "\n - Name: " + this.name + "\n - Money: " + this.money + "\n - Jailed: " + this.jailed;
+		return "Player " + this.id +
+				"\n - Name: " + this.name +
+				"\n - Money: " + this.money +
+				"\n - Board Position: " + this.money +
+				"\n - Jailed: " + this.jailed +
+				"\n - Bankrupt: " + this.bankrupt;
 	}
 }

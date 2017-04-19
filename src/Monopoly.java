@@ -85,65 +85,210 @@ public class Monopoly
 		}*/
 	}
 
+	public void PlayerMenu()
+	{
+
+	}
+
 	public boolean Run()
 	{
 		boolean rolledDice = false;
 		int doubleCount = 0;
 
+		//While the player can still roll the dice again
 		while(rolledDice == false)
 		{
 			System.out.println("");
 			System.out.println(players[currentPlayer].GetName() + "'s turn");
 			System.out.println(players[currentPlayer].GetName() + " currently has £" + players[currentPlayer].GetMoney());
-			System.out.println("Options: ");
-			System.out.println(" - 1: Roll Dice");
-			System.out.println(" - 2: Manage Properties");
-			System.out.println(" - 3: Trade");
-			switch (reader.nextLine())
+
+			//If the player is currently not in jail
+			if(players[currentPlayer].GetJailed() == false)
 			{
-				case "1":
-					rolledDice = true;
-					int die1 = RollDie();
-					int die2 = RollDie();
-					System.out.println("Rolled: " + die1 + " and " + die2);
-					if (die1 == die2)
+				PlayerMenu();
+				System.out.println("Options: ");
+				System.out.println(" - 1: Roll Dice");
+				System.out.println(" - 2: Manage Properties");
+				System.out.println(" - 3: Trade");
+				switch (reader.nextLine())
+				{
+					case "1": // Roll dice
 					{
-						doubleCount++;
-						System.out.println(players[currentPlayer].GetName() + " rolled a double!");
-						if (doubleCount < 3)
+						rolledDice = true;
+						int die1 = RollDie(); // random num 1-6
+						int die2 = RollDie(); // random num 1-6
+						System.out.println("Rolled: " + die1 + " and " + die2);
+
+						// If the player rolled a double
+						if (die1 == die2)
 						{
-							System.out.println(players[currentPlayer].GetName() + " can roll again");
-							rolledDice = false;
-						}
-						else
-						{
-							System.out.println("Three doubles in a row? You must be cheating. Off to jail");
-							for(Square square : board)
+							doubleCount++; // count up that they got a double
+							System.out.println(players[currentPlayer].GetName() + " rolled a double!");
+
+							// If they haven't reached 3 doubles
+							if (doubleCount < 3)
 							{
-								if (square.GetName() == "Jail")
+								System.out.println(players[currentPlayer].GetName() + " can roll again");
+								rolledDice = false;
+							}
+							else // 3 doubles in a row and the player goes to jail
+							{
+								//Find the jail square and set their position to that square
+								System.out.println("Three doubles in a row? You must be cheating. Off to jail");
+								for (Square square : board)
 								{
-									int index = board.indexOf(square);
-									players[currentPlayer].SetPosition(index);
-									players[currentPlayer].SetJailed(true);
+									if (square.GetName() == "Jail")
+									{
+										int index = board.indexOf(square);
+										players[currentPlayer].SetPosition(index);
+										players[currentPlayer].SetJailed(true);
+									}
 								}
 							}
 						}
-					}
-					else
-					{
-						doubleCount = 0;
-					}
-					if(players[currentPlayer].GetJailed() != true)
-					{
+						else // reset the double counter if they roll normally
+						{
+							doubleCount = 0;
+						}
 						players[currentPlayer].Move(die1 + die2, board);
+						break;
 					}
-					break;
-				case "2":
+					case "2": // Manage properties
+					{
 
-					break;
-				case "3":
+						break;
+					}
+					case "3": // Trade
+					{
 
-					break;
+						break;
+					}
+				}
+			}
+			else // The player is currently in jail
+			{
+				System.out.println(players[currentPlayer].GetName() + " is currently in jail");
+				// If the player hasn't been in jail for three turns
+				if(players[currentPlayer].GetJailCounter() < 3)
+				{
+					// increase the amount of time in jail by another turn
+					players[currentPlayer].SetJailCounter(players[currentPlayer].GetJailCounter() + 1);
+
+					System.out.println("Options: ");
+					System.out.println(" - 1: Roll Dice (must roll double to escape)");
+					int optionNum = 2;
+
+					if(players[currentPlayer].GetJailCards() > 0)
+					{
+						System.out.println(" - "+ optionNum +": Use get out of jail free card");
+						optionNum++;
+					}
+
+					if(players[currentPlayer].GetMoney() >= 50)
+					{
+						System.out.println(" - " + optionNum + ": Pay £50 Bail");
+						optionNum+=2;
+					}
+
+					switch (reader.nextLine())
+					{
+						case "1": // Roll dice
+						{
+							rolledDice = true;
+							int die1 = RollDie(); // random num 1-6
+							int die2 = RollDie(); // random num 1-6
+							System.out.println("Rolled: " + die1 + " and " + die2);
+							if(die1 == die2) // Free to go
+							{
+								System.out.println(players[currentPlayer].GetName() + " rolled a double and got out of jail");
+								players[currentPlayer].Move(die1 + die2, board);
+							}
+							else
+							{
+								System.out.println(players[currentPlayer].GetName() + " is still in jail");
+							}
+						}
+						case "2": // Possibly jail card or pay £50
+						{
+							if(optionNum == 4) // option 2 is pay £50
+							{
+								System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
+								players[currentPlayer].RemoveMoney(50);
+								players[currentPlayer].SetJailed(false);
+								players[currentPlayer].SetJailCounter(0);
+							}
+							else if(optionNum == 3 || optionNum == 5) // option 2 is a jail card
+							{
+								System.out.println(players[currentPlayer].GetName() + " has used a get out of jail free card to leave jail");
+								players[currentPlayer].RemoveJailCard();
+								players[currentPlayer].SetJailed(false);
+								players[currentPlayer].SetJailCounter(0);
+							}
+						}
+						case "3": // Can only be pay £50 if they were given the option for 3
+						{
+							if(optionNum == 5) // Make sure they were given both the jail card and money options
+							{
+								System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
+								players[currentPlayer].RemoveMoney(50);
+								players[currentPlayer].SetJailed(false);
+								players[currentPlayer].SetJailCounter(0);
+							}
+						}
+					}
+				}
+				else // The player cant roll anymore because they have been in jail 3 turns
+				{
+					System.out.println("Options: ");
+					System.out.println(" - 1: Pay £50 Bail");
+					if(players[currentPlayer].GetJailCards() > 0)
+					{
+						System.out.println(" - 2: Use get out of jail free card");
+					}
+
+					switch(reader.nextLine())
+					{
+						case "1": // Pay £50
+						{
+							if(players[currentPlayer].GetMoney() >= 50)
+							{
+								System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
+								players[currentPlayer].RemoveMoney(50);
+								players[currentPlayer].SetJailed(false);
+								players[currentPlayer].SetJailCounter(0);
+							}
+							else
+							{
+								System.out.println(players[currentPlayer].GetName() + " does not have enough money to pay for this");
+								boolean enoughMoney = players[currentPlayer].MoneyManagement(50,board);
+								if(enoughMoney == true)
+								{
+									System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
+									players[currentPlayer].RemoveMoney(50);
+									players[currentPlayer].SetJailed(false);
+									players[currentPlayer].SetJailCounter(0);
+								}
+								else
+								{
+									System.out.println(players[currentPlayer].GetName() + " could not get enough money to pay their debts.");
+									System.out.println(players[currentPlayer].GetName() + " is bankrupt");
+									System.out.println(players[currentPlayer].GetName() + "'s things will be returned to the bank");
+									players[currentPlayer].Bankrupt(board);
+								}
+							}
+						}
+						case "2":
+						{
+							if(players[currentPlayer].GetJailCards() > 0)
+							{
+								System.out.println(players[currentPlayer].GetName() + " has used a get out of jail free card to leave jail");
+								players[currentPlayer].RemoveJailCard();
+								players[currentPlayer].SetJailed(false);
+								players[currentPlayer].SetJailCounter(0);
+							}
+						}
+					}
+				}
 			}
 		}
 

@@ -35,7 +35,7 @@ public class Tax extends Square
 				System.out.println(player.GetName() + " could not get enough money to pay their debts.");
 				System.out.println(player.GetName() + " is bankrupt");
 				System.out.println(player.GetName() + "'s things will be returned to the bank");
-				player.Bankrupt();
+				player.Bankrupt(board);
 			}
 		}
 	}
