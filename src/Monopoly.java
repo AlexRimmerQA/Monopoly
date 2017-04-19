@@ -12,6 +12,8 @@ public class Monopoly
 
 	private int currentPlayer = 0;
 
+	private Player activePlayer;
+
 	private Scanner reader = new Scanner(System.in);
 
 	ArrayList<Square> board;
@@ -79,6 +81,8 @@ public class Monopoly
 			players[i].SetName(reader.nextLine());
 		}
 
+		activePlayer = players[currentPlayer];
+
 		/*for(int i = 0; i < 4; i++)
 		{
 			System.out.println(players[i].ToString());
@@ -87,29 +91,112 @@ public class Monopoly
 
 	public void PlayerMenu()
 	{
-
-	}
-
-	public boolean Run()
-	{
 		boolean rolledDice = false;
 		int doubleCount = 0;
 
-		//While the player can still roll the dice again
+		//While the player can still roll the dice
+		while(rolledDice == false)
+		{
+
+			System.out.println("");
+			System.out.println(activePlayer.GetName() + "'s turn");
+			System.out.println(activePlayer.GetName() + " currently has £" + players[currentPlayer].GetMoney());
+
+			System.out.println("Options: ");
+			System.out.println(" - 1: Roll Dice");
+			System.out.println(" - 2: Manage Properties");
+			System.out.println(" - 3: Trade");
+			switch (reader.nextLine())
+			{
+				case "1": // Roll dice
+				{
+					rolledDice = true;
+					int die1 = RollDie(); // random num 1-6
+					int die2 = RollDie(); // random num 1-6
+					System.out.println("Rolled: " + die1 + " and " + die2);
+
+					// If the player rolled a double
+					if (die1 == die2)
+					{
+						doubleCount++; // count up that they got a double
+						System.out.println(activePlayer.GetName() + " rolled a double!");
+
+						// If they haven't reached 3 doubles
+						if (doubleCount < 3)
+						{
+							System.out.println(activePlayer.GetName() + " can roll again");
+							rolledDice = false;
+						}
+						else // 3 doubles in a row and the player goes to jail
+						{
+							//Find the jail square and set their position to that square
+							System.out.println("Three doubles in a row? You must be cheating. Off to jail");
+							for (Square square : board)
+							{
+								if (square.GetName() == "Jail")
+								{
+									int index = board.indexOf(square);
+									activePlayer.SetPosition(index);
+									activePlayer.SetJailed(true);
+								}
+							}
+						}
+					}
+					else // reset the double counter if they roll normally
+					{
+						doubleCount = 0;
+					}
+					activePlayer.Move(die1 + die2, board);
+					break;
+				}
+				case "2": // Manage properties
+				{
+
+					break;
+				}
+				case "3": // Trade
+				{
+
+					break;
+				}
+			}
+		}
+	}
+
+	public boolean JailMenu()
+	{
+		boolean rolledDice = false;
+
+		//While the player can still roll the dice
 		while(rolledDice == false)
 		{
 			System.out.println("");
-			System.out.println(players[currentPlayer].GetName() + "'s turn");
-			System.out.println(players[currentPlayer].GetName() + " currently has £" + players[currentPlayer].GetMoney());
+			System.out.println(activePlayer.GetName() + "'s turn");
+			System.out.println(activePlayer.GetName() + " currently has £" + activePlayer.GetMoney());
+			System.out.println(activePlayer.GetName() + " is currently in jail");
 
-			//If the player is currently not in jail
-			if(players[currentPlayer].GetJailed() == false)
+			// If the player hasn't been in jail for three turns
+			if (activePlayer.GetJailCounter() < 3)
 			{
-				PlayerMenu();
+				// increase the amount of time in jail by another turn
+				players[currentPlayer].SetJailCounter(activePlayer.GetJailCounter() + 1);
+
 				System.out.println("Options: ");
-				System.out.println(" - 1: Roll Dice");
-				System.out.println(" - 2: Manage Properties");
-				System.out.println(" - 3: Trade");
+				System.out.println(" - 1: Roll Dice (must roll double to escape)");
+				int optionNum = 2;
+
+				if (activePlayer.GetJailCards() > 0)
+				{
+					System.out.println(" - " + optionNum + ": Use get out of jail free card");
+					optionNum++;
+				}
+
+				if (activePlayer.GetMoney() >= 50)
+				{
+					System.out.println(" - " + optionNum + ": Pay £50 Bail");
+					optionNum += 2;
+				}
+
 				switch (reader.nextLine())
 				{
 					case "1": // Roll dice
@@ -118,181 +205,146 @@ public class Monopoly
 						int die1 = RollDie(); // random num 1-6
 						int die2 = RollDie(); // random num 1-6
 						System.out.println("Rolled: " + die1 + " and " + die2);
-
-						// If the player rolled a double
-						if (die1 == die2)
+						if (die1 == die2) // Free to go
 						{
-							doubleCount++; // count up that they got a double
-							System.out.println(players[currentPlayer].GetName() + " rolled a double!");
-
-							// If they haven't reached 3 doubles
-							if (doubleCount < 3)
-							{
-								System.out.println(players[currentPlayer].GetName() + " can roll again");
-								rolledDice = false;
-							}
-							else // 3 doubles in a row and the player goes to jail
-							{
-								//Find the jail square and set their position to that square
-								System.out.println("Three doubles in a row? You must be cheating. Off to jail");
-								for (Square square : board)
-								{
-									if (square.GetName() == "Jail")
-									{
-										int index = board.indexOf(square);
-										players[currentPlayer].SetPosition(index);
-										players[currentPlayer].SetJailed(true);
-									}
-								}
-							}
+							System.out.println(activePlayer.GetName() + " rolled a double and got out of jail");
+							activePlayer.Move(die1 + die2, board);
 						}
-						else // reset the double counter if they roll normally
+						else
 						{
-							doubleCount = 0;
+							System.out.println(activePlayer.GetName() + " is still in jail");
 						}
-						players[currentPlayer].Move(die1 + die2, board);
-						break;
 					}
-					case "2": // Manage properties
+					case "2": // Possibly jail card or pay £50
 					{
-
-						break;
+						if (optionNum == 4) // option 2 is pay £50
+						{
+							System.out.println(activePlayer.GetName() + " has paid £50 bail to leave jail");
+							activePlayer.RemoveMoney(50);
+							activePlayer.SetJailed(false);
+							activePlayer.SetJailCounter(0);
+							return false;
+						}
+						else if (optionNum == 3 || optionNum == 5) // option 2 is a jail card
+						{
+							System.out.println(activePlayer.GetName() + " has used a get out of jail free card to leave jail");
+							activePlayer.RemoveJailCard();
+							activePlayer.SetJailed(false);
+							activePlayer.SetJailCounter(0);
+							return false;
+						}
 					}
-					case "3": // Trade
+					case "3": // Can only be pay £50 if they were given the option for 3
 					{
-
-						break;
+						if (optionNum == 5) // Make sure they were given both the jail card and money options
+						{
+							System.out.println(activePlayer.GetName() + " has paid £50 bail to leave jail");
+							activePlayer.RemoveMoney(50);
+							activePlayer.SetJailed(false);
+							activePlayer.SetJailCounter(0);
+							return false;
+						}
 					}
 				}
 			}
-			else // The player is currently in jail
+			else // The player cant roll anymore because they have been in jail 3 turns
 			{
-				System.out.println(players[currentPlayer].GetName() + " is currently in jail");
-				// If the player hasn't been in jail for three turns
-				if(players[currentPlayer].GetJailCounter() < 3)
+				System.out.println("Options: ");
+				System.out.println(" - 1: Pay £50 Bail");
+				if (activePlayer.GetJailCards() > 0)
 				{
-					// increase the amount of time in jail by another turn
-					players[currentPlayer].SetJailCounter(players[currentPlayer].GetJailCounter() + 1);
-
-					System.out.println("Options: ");
-					System.out.println(" - 1: Roll Dice (must roll double to escape)");
-					int optionNum = 2;
-
-					if(players[currentPlayer].GetJailCards() > 0)
-					{
-						System.out.println(" - "+ optionNum +": Use get out of jail free card");
-						optionNum++;
-					}
-
-					if(players[currentPlayer].GetMoney() >= 50)
-					{
-						System.out.println(" - " + optionNum + ": Pay £50 Bail");
-						optionNum+=2;
-					}
-
-					switch (reader.nextLine())
-					{
-						case "1": // Roll dice
-						{
-							rolledDice = true;
-							int die1 = RollDie(); // random num 1-6
-							int die2 = RollDie(); // random num 1-6
-							System.out.println("Rolled: " + die1 + " and " + die2);
-							if(die1 == die2) // Free to go
-							{
-								System.out.println(players[currentPlayer].GetName() + " rolled a double and got out of jail");
-								players[currentPlayer].Move(die1 + die2, board);
-							}
-							else
-							{
-								System.out.println(players[currentPlayer].GetName() + " is still in jail");
-							}
-						}
-						case "2": // Possibly jail card or pay £50
-						{
-							if(optionNum == 4) // option 2 is pay £50
-							{
-								System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
-								players[currentPlayer].RemoveMoney(50);
-								players[currentPlayer].SetJailed(false);
-								players[currentPlayer].SetJailCounter(0);
-							}
-							else if(optionNum == 3 || optionNum == 5) // option 2 is a jail card
-							{
-								System.out.println(players[currentPlayer].GetName() + " has used a get out of jail free card to leave jail");
-								players[currentPlayer].RemoveJailCard();
-								players[currentPlayer].SetJailed(false);
-								players[currentPlayer].SetJailCounter(0);
-							}
-						}
-						case "3": // Can only be pay £50 if they were given the option for 3
-						{
-							if(optionNum == 5) // Make sure they were given both the jail card and money options
-							{
-								System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
-								players[currentPlayer].RemoveMoney(50);
-								players[currentPlayer].SetJailed(false);
-								players[currentPlayer].SetJailCounter(0);
-							}
-						}
-					}
+					System.out.println(" - 2: Use get out of jail free card");
 				}
-				else // The player cant roll anymore because they have been in jail 3 turns
-				{
-					System.out.println("Options: ");
-					System.out.println(" - 1: Pay £50 Bail");
-					if(players[currentPlayer].GetJailCards() > 0)
-					{
-						System.out.println(" - 2: Use get out of jail free card");
-					}
 
-					switch(reader.nextLine())
+				switch (reader.nextLine())
+				{
+					case "1": // Pay £50
 					{
-						case "1": // Pay £50
+						if (activePlayer.GetMoney() >= 50)
 						{
-							if(players[currentPlayer].GetMoney() >= 50)
+							System.out.println(activePlayer.GetName() + " has paid £50 bail to leave jail");
+							activePlayer.RemoveMoney(50);
+							activePlayer.SetJailed(false);
+							activePlayer.SetJailCounter(0);
+							return false;
+						}
+						else
+						{
+							System.out.println(activePlayer.GetName() + " does not have enough money to pay for this");
+							boolean enoughMoney = activePlayer.MoneyManagement(50, board);
+							if (enoughMoney == true)
 							{
-								System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
-								players[currentPlayer].RemoveMoney(50);
-								players[currentPlayer].SetJailed(false);
-								players[currentPlayer].SetJailCounter(0);
+								System.out.println(activePlayer.GetName() + " has paid £50 bail to leave jail");
+								activePlayer.RemoveMoney(50);
+								activePlayer.SetJailed(false);
+								activePlayer.SetJailCounter(0);
+								return false;
 							}
 							else
 							{
-								System.out.println(players[currentPlayer].GetName() + " does not have enough money to pay for this");
-								boolean enoughMoney = players[currentPlayer].MoneyManagement(50,board);
-								if(enoughMoney == true)
-								{
-									System.out.println(players[currentPlayer].GetName() + " has paid £50 bail to leave jail");
-									players[currentPlayer].RemoveMoney(50);
-									players[currentPlayer].SetJailed(false);
-									players[currentPlayer].SetJailCounter(0);
-								}
-								else
-								{
-									System.out.println(players[currentPlayer].GetName() + " could not get enough money to pay their debts.");
-									System.out.println(players[currentPlayer].GetName() + " is bankrupt");
-									System.out.println(players[currentPlayer].GetName() + "'s things will be returned to the bank");
-									players[currentPlayer].Bankrupt(board);
-								}
+								System.out.println(activePlayer.GetName() + " could not get enough money to pay their debts.");
+								System.out.println(activePlayer.GetName() + " is bankrupt");
+								System.out.println(activePlayer.GetName() + "'s things will be returned to the bank");
+								activePlayer.Bankrupt(board);
+								return true;
 							}
 						}
-						case "2":
+					}
+					case "2":
+					{
+						if (activePlayer.GetJailCards() > 0)
 						{
-							if(players[currentPlayer].GetJailCards() > 0)
-							{
-								System.out.println(players[currentPlayer].GetName() + " has used a get out of jail free card to leave jail");
-								players[currentPlayer].RemoveJailCard();
-								players[currentPlayer].SetJailed(false);
-								players[currentPlayer].SetJailCounter(0);
-							}
+							System.out.println(activePlayer.GetName() + " has used a get out of jail free card to leave jail");
+							activePlayer.RemoveJailCard();
+							activePlayer.SetJailed(false);
+							activePlayer.SetJailCounter(0);
+							return false;
 						}
 					}
 				}
 			}
 		}
+		return true;
+	}
 
-		if(currentPlayer == numPlayers-1) currentPlayer = 0; else currentPlayer++;
+	public boolean Run()
+	{
+		//If the player is currently not in jail
+		if(activePlayer.GetJailed() == false)
+		{
+			PlayerMenu();
+		}
+		else // The player is currently in jail
+		{
+			JailMenu();
+		}
+
+		if(activePlayer.GetBankrupt() == true)
+		{
+			//Remove the player from the game
+			Player[] playersLeft = new Player[numPlayers-1];
+			int counter = 0;
+			for(int i = 0; i < numPlayers; i++)
+			{
+				if(players[i] != activePlayer)
+				{
+					playersLeft[counter] = players[i];
+					counter++;
+				}
+			}
+			numPlayers--;
+			players = playersLeft;
+		}
+
+		if(currentPlayer >= numPlayers-1)
+		{
+			currentPlayer = 0;
+		}
+		else
+		{
+			currentPlayer++;
+		}
+		activePlayer = players[currentPlayer];
 		return true;
 	}
 

@@ -21,6 +21,7 @@ public class GoToJail extends Square
 			if(square.GetName() == "Jail")
 			{
 				player.SetPosition(board.indexOf(square));
+				player.SetJailed(true);
 			}
 		}
 
