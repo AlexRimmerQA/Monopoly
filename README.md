@@ -1,11 +1,11 @@
 # Monopoly
 
 TODO:
- - Add a method for when a player does not have enough money to pay. 
-   They will get the option to sell buildings, mortgage property to raise the money.
-   If they cannot raise the money, then to get out of the menu, they must select bankrupt.
+ - If a player owns all the properties in a group, the base rent price is doubled. This needs to be implemented still
  
  - Add trading functionality
  
  - Add manage properties functionality
    Will include buying houses for properties.
+   
+ - Add in community chest and chance cards as currently landing on either of these squares will do nothing.
