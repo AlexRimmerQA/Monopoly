@@ -7,5 +7,3 @@ TODO:
  
  - Add manage properties functionality
    Will include buying houses for properties.
-   
- - Add in community chest and chance cards as currently landing on either of these squares will do nothing.
