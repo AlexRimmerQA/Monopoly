@@ -53,7 +53,7 @@ public class Chance extends Square
 	public void LandOn(Player player, ArrayList<Square> board)
 	{
 		System.out.println(player.GetName() + " has landed on " + this.name);
-		System.out.println(player.GetName() + " takes a card from the community chest");
+		System.out.println(player.GetName() + " takes a card from the chance deck");
 		Card theCard = cards.RemoveCard();
 		System.out.println("Card: " + theCard.GetDescription());
 		theCard.Execute(player, board);
