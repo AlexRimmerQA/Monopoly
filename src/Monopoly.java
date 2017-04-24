@@ -24,12 +24,12 @@ public class Monopoly
 
 		board.add(new Go());
 		board.add(new Property("Old Kent Road", 60, 50, "Brown", new ArrayList<>(Arrays.asList(2,10,30,90,160,250))));
-		board.add(new CommunityChest());
+		board.add(new CommunityChest(players, board));
 		board.add(new Property("Whitechapel Road", 60, 50, "Brown", new ArrayList<>(Arrays.asList(4,20,60,180,320,450))));
 		board.add(new Tax("Income Tax", 200));
 		board.add(new Railroad("Kings Cross Station", 200));
 		board.add(new Property("The Angel Islington", 100, 50, "Light Blue", new ArrayList<>(Arrays.asList(6,30,90,270,400,550))));
-		board.add(new Chance());
+		board.add(new Chance(players, board));
 		board.add(new Property("Euston Road", 100, 50, "Light Blue", new ArrayList<>(Arrays.asList(6,30,90,270,400,550))));
 		board.add(new Property("Pentonville Road", 120, 50, "Light Blue", new ArrayList<>(Arrays.asList(8,40,100,300,450,600))));
 		board.add(new Jail());
@@ -39,12 +39,12 @@ public class Monopoly
 		board.add(new Property("Northumberland Avenue", 160, 100, "Purple", new ArrayList<>(Arrays.asList(12,60,180,500,700,900))));
 		board.add(new Railroad("Marylebone Station", 200));
 		board.add(new Property("Bow Street", 180, 100, "Orange", new ArrayList<>(Arrays.asList(14,70,200,550,750,950))));
-		board.add(new CommunityChest());
+		board.add(new CommunityChest(players, board));
 		board.add(new Property("Marlborough Street", 180, 100, "Orange", new ArrayList<>(Arrays.asList(14,70,200,550,750,950))));
 		board.add(new Property("Vine Street", 200, 100, "Orange", new ArrayList<>(Arrays.asList(16,80,220,600,800,1000))));
 		board.add(new FreeParking());
 		board.add(new Property("The Strand", 220, 150, "Red", new ArrayList<>(Arrays.asList(18,90,250,700,875,1050))));
-		board.add(new Chance());
+		board.add(new Chance(players, board));
 		board.add(new Property("Fleet Street", 220, 150, "Red", new ArrayList<>(Arrays.asList(18,90,250,700,875,1050))));
 		board.add(new Property("Trafalgar Square", 240, 150, "Red", new ArrayList<>(Arrays.asList(20,100,300,750,925,1100))));
 		board.add(new Railroad("Fenchurch St Station", 200));
@@ -55,10 +55,10 @@ public class Monopoly
 		board.add(new GoToJail());
 		board.add(new Property("Regent Street", 300, 200, "Green", new ArrayList<>(Arrays.asList(26,130,390,900,1100,1275))));
 		board.add(new Property("Oxford Street", 300, 200, "Green", new ArrayList<>(Arrays.asList(26,130,390,900,1100,1275))));
-		board.add(new CommunityChest());
+		board.add(new CommunityChest(players, board));
 		board.add(new Property("Bond Street", 320, 200, "Green", new ArrayList<>(Arrays.asList(28,150,450,1000,1200,1400))));
 		board.add(new Railroad("Liverpool Street Station", 200));
-		board.add(new Chance());
+		board.add(new Chance(players, board));
 		board.add(new Property("Park Lane", 350, 200, "Blue", new ArrayList<>(Arrays.asList(35,175,500,1100,1300,1500))));
 		board.add(new Tax("Super Tax", 100));
 		board.add(new Property("Mayfair", 400, 200, "Blue", new ArrayList<>(Arrays.asList(50,200,600,1400,1700,2000))));
@@ -176,7 +176,7 @@ public class Monopoly
 			System.out.println(activePlayer.GetName() + " is currently in jail");
 
 			// If the player hasn't been in jail for three turns
-			if (activePlayer.GetJailCounter() < 3)
+			if (activePlayer.GetJailCounter() < 2)
 			{
 				// increase the amount of time in jail by another turn
 				players[currentPlayer].SetJailCounter(activePlayer.GetJailCounter() + 1);
@@ -185,7 +185,7 @@ public class Monopoly
 				System.out.println(" - 1: Roll Dice (must roll double to escape)");
 				int optionNum = 2;
 
-				if (activePlayer.GetJailCards() > 0)
+				if (activePlayer.HasJailCard())
 				{
 					System.out.println(" - " + optionNum + ": Use get out of jail free card");
 					optionNum++;
@@ -228,7 +228,7 @@ public class Monopoly
 						else if (optionNum == 3 || optionNum == 5) // option 2 is a jail card
 						{
 							System.out.println(activePlayer.GetName() + " has used a get out of jail free card to leave jail");
-							activePlayer.RemoveJailCard();
+							activePlayer.TakeJailCard();
 							activePlayer.SetJailed(false);
 							activePlayer.SetJailCounter(0);
 							return false;
@@ -251,7 +251,7 @@ public class Monopoly
 			{
 				System.out.println("Options: ");
 				System.out.println(" - 1: Pay £50 Bail");
-				if (activePlayer.GetJailCards() > 0)
+				if (activePlayer.HasJailCard())
 				{
 					System.out.println(" - 2: Use get out of jail free card");
 				}
@@ -292,10 +292,10 @@ public class Monopoly
 					}
 					case "2":
 					{
-						if (activePlayer.GetJailCards() > 0)
+						if (activePlayer.HasJailCard())
 						{
 							System.out.println(activePlayer.GetName() + " has used a get out of jail free card to leave jail");
-							activePlayer.RemoveJailCard();
+							activePlayer.TakeJailCard();
 							activePlayer.SetJailed(false);
 							activePlayer.SetJailCounter(0);
 							return false;

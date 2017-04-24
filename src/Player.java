@@ -11,7 +11,7 @@ public class Player
 	private String name;
 	private int money;
 	private boolean jailed;
-	private int jailCards;
+	private ArrayList<Card> jailCards;
 	private int jailCounter;
 	private int boardPosition;
 	private int lastRollTotal;
@@ -21,28 +21,35 @@ public class Player
 	{
 		id = nextId;
 		nextId++;
-
 		money = 500;
 		jailed = false;
-		jailCards = 0;
 		jailCounter = 0;
+		jailCards = new ArrayList<>();
 		bankrupt = false;
 		boardPosition = 0;
 	}
 
-	public int GetJailCards()
+	public boolean HasJailCard()
 	{
-		return this.jailCards;
+		if(!jailCards.isEmpty())
+			return true;
+		return false;
 	}
 
-	public void GiveJailCard()
+	public void GiveJailCard(Card jailCard)
 	{
-		jailCards++;
+		jailCards.add(jailCard);
 	}
 
-	public void RemoveJailCard()
+	public Card TakeJailCard()
 	{
-		jailCards--;
+		if(HasJailCard())
+		{
+			Card card = jailCards.get(0);
+			jailCards.remove(0);
+			return card;
+		}
+		return null;
 	}
 
 	public void SetJailCounter(int jailCounter)
